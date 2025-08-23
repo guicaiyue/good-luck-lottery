@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生肖彩票助手</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      min-height: 500px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .zodiac-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .zodiac-icon {
+      font-size: 32px;
+    }
+
+    .zodiac-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .fortune-info {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .fortune-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: white;
+    }
+
+    .fortune-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .lottery-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .lottery-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lottery-numbers {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 15px;
+      min-height: 40px;
+    }
+
+    .number-ball {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .red-ball {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    }
+
+    .blue-ball {
+      background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    }
+
+    .lottery-status {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .purchased {
+      color: #27ae60;
+      font-weight: bold;
+    }
+
+    .not-purchased {
+      color: #e74c3c;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .generate-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .footer {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    /* 分类选择器样式 */
+    .category-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .category-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 25px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .category-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .category-btn.active {
+      background: white;
+      color: #667eea;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* 页面切换样式 */
+    .lottery-page {
+      transition: all 0.3s ease;
+    }
+
+    .lottery-page.hidden {
+      display: none;
+    }
+
+    /* 历史记录样式 */
+    .recent-numbers, .personal-history {
+      margin-top: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .history-comparison {
+      margin-top: 15px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .recent-list, .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .integrated-history {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .period-group {
+      margin-bottom: 12px;
+    }
+
+    .period-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .period-header.pending {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      color: #8b4513;
+    }
+
+    .period-numbers {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .personal-record {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 6px;
+      border-left: 3px solid #e9ecef;
+      margin-bottom: 2px;
+      font-size: 12px;
+    }
+
+    .personal-record.purchased {
+      border-left-color: #28a745;
+    }
+
+    .personal-record.winner {
+      border-left-color: #ffc107;
+      background: #fff8e1;
+    }
+
+    .record-date {
+      color: #6c757d;
+      font-weight: 500;
+      min-width: 60px;
+    }
+
+    .record-numbers {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+      margin: 0 8px;
+    }
+
+    .record-status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .star-icon {
+      color: #ffc107;
+      font-size: 14px;
+    }
+
+    .prize-badge {
+      background: #ffc107;
+      color: #8b4513;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .recent-item, .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 6px;
+      font-size: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .recent-date, .history-date {
+      color: #666;
+      font-size: 11px;
+    }
+
+    .recent-numbers-display, .history-numbers-display {
+      display: flex;
+      gap: 3px;
+    }
+
+    .mini-ball {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .mini-red-ball {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    }
+
+    .mini-blue-ball {
+      background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    }
+
+    .prize-info {
+      color: #e74c3c;
+      font-weight: bold;
+      font-size: 11px;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #999;
+      font-size: 12px;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 头部信息 -->
+    <div class="header">
+      <div class="zodiac-info">
+        <span class="zodiac-icon" id="zodiacIcon">🐉</span>
+        <span class="zodiac-name" id="zodiacName">龙</span>
+        <span>年运势</span>
+      </div>
+    </div>
+
+    <!-- 运势信息 -->
+    <div class="fortune-info">
+      <div class="fortune-row">
+        <span>农历:</span>
+        <span id="lunarDate">腊月初八</span>
+      </div>
+      <div class="fortune-row">
+        <span>今日:</span>
+        <span id="lunarSuit">宜: 祈福、出行 忌: 动土</span>
+      </div>
+    </div>
+
+    <!-- 彩票分类选择器 -->
+    <div class="category-selector">
+      <button class="category-btn active" data-category="welfare">🎈 福彩</button>
+      <button class="category-btn" data-category="sports">⚽ 体彩</button>
+    </div>
+
+    <!-- 福彩页面 -->
+    <div class="lottery-page" id="welfarePage">
+      <!-- 双色球 -->
+      <div class="lottery-section">
+        <div class="lottery-title">
+          🔴 双色球
+        </div>
+        <div class="lottery-numbers" id="ssqNumbers">
+          <!-- 号码球将通过JS动态生成 -->
+        </div>
+        <div class="lottery-status" id="ssqStatus">
+          <!-- 状态信息 -->
+        </div>
+        <button class="generate-btn" id="ssqBtn">生成今日幸运号码</button>
+        
+        <!-- 历史记录对比 -->
+        <div class="history-comparison">
+          <div class="section-title">📊 历史记录对比</div>
+          <div class="integrated-history" id="ssqIntegratedHistory"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 体彩页面 -->
+    <div class="lottery-page hidden" id="sportsPage">
+      <!-- 大乐透 -->
+      <div class="lottery-section">
+        <div class="lottery-title">
+          🎯 大乐透
+        </div>
+        <div class="lottery-numbers" id="dltNumbers">
+          <!-- 号码球将通过JS动态生成 -->
+        </div>
+        <div class="lottery-status" id="dltStatus">
+          <!-- 状态信息 -->
+        </div>
+        <button class="generate-btn" id="dltBtn">生成今日幸运号码</button>
+        
+        <!-- 历史记录对比 -->
+        <div class="history-comparison">
+          <div class="section-title">📊 历史记录对比</div>
+          <div class="integrated-history" id="dltIntegratedHistory"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="footer">
+      🍀 愿好运常伴 🍀
+    </div>
+  </div>
+
+  <script type="module">
+    let Lunar, Solar;
+    
+    // 异步初始化lunar-javascript库
+    async function initLunarLibrary() {
+      try {
+        const lunarModule = await import('https://cdn.skypack.dev/lunar-javascript');
+        Lunar = lunarModule.Lunar;
+        Solar = lunarModule.Solar;
+        return true;
+      } catch (error) {
+        console.error('Failed to load lunar-javascript:', error);
+        // 提供降级方案
+        const fallbackZodiac = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+        const currentYear = new Date().getFullYear();
+        const zodiacIndex = (currentYear - 1900) % 12;
+        
+        // 模拟lunar-javascript的基本功能
+        Solar = {
+          fromDate: () => ({
+            getLunar: () => ({
+              getYear: () => currentYear,
+              getMonthInChinese: () => '腊',
+              getDayInChinese: () => '初八',
+              getDayYi: () => ['祈福', '出行', '嫁娶'],
+              getDayJi: () => ['动土', '开仓']
+            })
+          })
+        };
+        return false;
+      }
+    }
+
+    // 生肖映射
+    const ZODIAC_ICONS = ['🐭', '🐮', '🐯', '🐰', '🐉', '🐍', '🐴', '🐑', '🐵', '🐔', '🐶', '🐷'];
+    const ZODIAC_NAMES = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+
+    // 统一存储键
+    const STORAGE_KEY = 'lottery_data_unified';
+    
+    // 彩票类型常量
+    const LOTTERY_TYPES = {
+      SSQ: 'ssq',
+      DLT: 'dlt'
+    };
+
+    /**
+     * 获取今日日期字符串 (YYYY-MM-DD)
+     */
+    function getTodayString() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    /**
+     * 基于种子的确定性随机数生成器
+     */
+    class SeededRandom {
+      constructor(seed) {
+        this.seed = seed;
+      }
+
+      next() {
+        this.seed = (this.seed * 9301 + 49297) % 233280;
+        return this.seed / 233280;
+      }
+
+      nextInt(min, max) {
+        return Math.floor(this.next() * (max - min + 1)) + min;
+      }
+    }
+
+    /**
+     * 生成种子值
+     */
+    function generateSeed(lotteryType, date, zodiacIndex) {
+      const str = `${lotteryType}-${date}-${zodiacIndex}`;
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash);
+    }
+
+    /**
+     * 生成双色球号码
+     * 红球: 1-33选6个，蓝球: 1-16选1个
+     */
+    function generateSSQNumbers(seed) {
+      if (typeof seed !== 'number' || seed < 0) {
+        throw new Error('Invalid seed for SSQ number generation');
+      }
+      
+      const rng = new SeededRandom(seed);
+      const red = [];
+      let attempts = 0;
+      const maxAttempts = 1000; // 防止无限循环
+      
+      while (red.length < 6 && attempts < maxAttempts) {
+        const num = rng.nextInt(1, 33);
+        if (num >= 1 && num <= 33 && !red.includes(num)) {
+          red.push(num);
+        }
+        attempts++;
+      }
+      
+      if (red.length !== 6) {
+        throw new Error('Failed to generate 6 unique red balls for SSQ');
+      }
+      
+      red.sort((a, b) => a - b);
+      
+      const blueNum = rng.nextInt(1, 16);
+      if (blueNum < 1 || blueNum > 16) {
+        throw new Error('Invalid blue ball number generated for SSQ');
+      }
+      
+      const blue = [blueNum];
+      
+      return { red, blue };
+    }
+
+    /**
+     * 生成大乐透号码
+     * 前区: 1-35选5个，后区: 1-12选2个
+     */
+    function generateDLTNumbers(seed) {
+      if (typeof seed !== 'number' || seed < 0) {
+        throw new Error('Invalid seed for DLT number generation');
+      }
+      
+      const rng = new SeededRandom(seed);
+      const red = [];
+      const blue = [];
+      let attempts = 0;
+      const maxAttempts = 1000; // 防止无限循环
+      
+      // 生成前区号码 (1-35选5个)
+      while (red.length < 5 && attempts < maxAttempts) {
+        const num = rng.nextInt(1, 35);
+        if (num >= 1 && num <= 35 && !red.includes(num)) {
+          red.push(num);
+        }
+        attempts++;
+      }
+      
+      if (red.length !== 5) {
+        throw new Error('Failed to generate 5 unique front numbers for DLT');
+      }
+      
+      red.sort((a, b) => a - b);
+      
+      // 生成后区号码 (1-12选2个)
+      attempts = 0;
+      while (blue.length < 2 && attempts < maxAttempts) {
+        const num = rng.nextInt(1, 12);
+        if (num >= 1 && num <= 12 && !blue.includes(num)) {
+          blue.push(num);
+        }
+        attempts++;
+      }
+      
+      if (blue.length !== 2) {
+        throw new Error('Failed to generate 2 unique back numbers for DLT');
+      }
+      
+      blue.sort((a, b) => a - b);
+      
+      return { red, blue };
+    }
+
+    /**
+     * 获取当前生肖信息
+     */
+    function getCurrentZodiac() {
+      const today = Solar.fromDate(new Date());
+      const lunar = today.getLunar();
+      const zodiacIndex = (lunar.getYear() - 4) % 12;
+      
+      return {
+        index: zodiacIndex,
+        name: ZODIAC_NAMES[zodiacIndex],
+        icon: ZODIAC_ICONS[zodiacIndex]
+      };
+    }
+
+    /**
+     * 获取农历信息
+     */
+    function getLunarInfo() {
+      const today = Solar.fromDate(new Date());
+      const lunar = today.getLunar();
+      
+      const lunarDate = `${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
+      
+      const yi = lunar.getDayYi();
+      const ji = lunar.getDayJi();
+      
+      let suit = '';
+      if (yi.length > 0) {
+        suit += `宜: ${yi.slice(0, 3).join('、')}`;
+      }
+      if (ji.length > 0) {
+        if (suit) suit += ' ';
+        suit += `忌: ${ji.slice(0, 3).join('、')}`;
+      }
+      
+      return { date: lunarDate, suit: suit || '平安吉日' };
+    }
+
+    /**
+     * 获取统一存储的彩票数据
+     */
+    async function getUnifiedLotteryData() {
+      try {
+        // 检查Chrome API是否可用
+        if (!chrome || !chrome.storage || !chrome.storage.local) {
+          console.warn('Chrome storage API not available, using localStorage fallback');
+          const data = localStorage.getItem(STORAGE_KEY);
+          return data ? JSON.parse(data) : [];
+        }
+        
+        const result = await chrome.storage.local.get(STORAGE_KEY);
+        return result[STORAGE_KEY] || [];
+      } catch (error) {
+        console.error('Error getting unified lottery data:', error);
+        return [];
+      }
+    }
+
+    /**
+     * 从统一数据中获取今日号码数据
+     */
+    async function getStoredNumbers(lotteryType) {
+      try {
+        const allData = await getUnifiedLotteryData();
+        const today = getTodayString();
+        
+        // 查找今日对应彩种的号码数据
+        const todayData = allData.find(item => 
+          item.type === lotteryType && 
+          item.date === today && 
+          item.dataType === 'generated_numbers'
+        );
+        
+        return todayData ? todayData.data : null;
+      } catch (error) {
+        console.error('Error getting stored numbers:', error);
+        return null;
+      }
+    }
+
+    /**
+     * 保存统一彩票数据到存储
+     */
+    async function saveUnifiedLotteryData(data) {
+      try {
+        // 检查Chrome API是否可用
+        if (!chrome || !chrome.storage || !chrome.storage.local) {
+          console.warn('Chrome storage API not available, using localStorage fallback');
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          return;
+        }
+        
+        await chrome.storage.local.set({ [STORAGE_KEY]: data });
+      } catch (error) {
+        console.error('Error saving unified lottery data:', error);
+        // 降级到localStorage
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (fallbackError) {
+          console.error('Fallback storage also failed:', fallbackError);
+        }
+      }
+    }
+
+    /**
+     * 基于最近开奖数据清理过期缓存
+     */
+    async function cleanExpiredCache(lotteryType) {
+      try {
+        const allData = await getUnifiedLotteryData();
+        const winningData = await getRecentWinningNumbers(lotteryType);
+        
+        if (winningData.length === 0) return allData;
+        
+        // 获取最小开奖日期
+        const minWinningDate = new Date(Math.min(...winningData.map(w => new Date(w.date))));
+        
+        // 过滤掉比最小开奖日期还要小的数据
+        const filteredData = allData.filter(item => {
+          if (item.type !== lotteryType) return true; // 保留其他彩种数据
+          
+          const itemDate = new Date(item.date);
+          return itemDate >= minWinningDate; // 只保留不早于最小开奖日期的数据
+        });
+        
+        return filteredData;
+      } catch (error) {
+        console.error('Error cleaning expired cache:', error);
+        return await getUnifiedLotteryData(); // 返回原数据
+      }
+    }
+
+    /**
+     * 保存号码数据到统一存储
+     */
+    async function saveNumbers(lotteryType, numbers) {
+      try {
+        let allData = await getUnifiedLotteryData();
+        const today = getTodayString();
+        
+        // 清理过期缓存
+        allData = await cleanExpiredCache(lotteryType);
+        
+        // 移除今日同类型的旧数据
+        allData = allData.filter(item => 
+          !(item.type === lotteryType && 
+            item.date === today && 
+            item.dataType === 'generated_numbers')
+        );
+        
+        // 添加新数据
+        const newEntry = {
+          type: lotteryType,
+          date: today,
+          dataType: 'generated_numbers',
+          data: numbers,
+          timestamp: Date.now()
+        };
+        
+        allData.push(newEntry);
+        
+        // 按日期倒序排序
+        allData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        await saveUnifiedLotteryData(allData);
+      } catch (error) {
+        console.error('Error saving numbers:', error);
+      }
+    }
+
+    /**
+     * 生成并保存号码
+     */
+    async function generateAndSaveNumbers(lotteryType) {
+      try {
+        if (!lotteryType || (lotteryType !== 'ssq' && lotteryType !== 'dlt')) {
+          throw new Error('Invalid lottery type: ' + lotteryType);
+        }
+        
+        const zodiac = getCurrentZodiac();
+        const today = getTodayString();
+        const seed = generateSeed(lotteryType, today, zodiac.index);
+        
+        let numbers;
+        if (lotteryType === 'ssq') {
+          numbers = generateSSQNumbers(seed);
+        } else {
+          numbers = generateDLTNumbers(seed);
+        }
+        
+        // 验证生成的号码
+        if (!numbers || !Array.isArray(numbers.red) || !Array.isArray(numbers.blue)) {
+          throw new Error('Invalid numbers generated');
+        }
+        
+        const lotteryNumbers = {
+          red: numbers.red,
+          blue: numbers.blue,
+          generated: true,
+          purchased: false,
+          date: today
+        };
+        
+        await saveNumbers(lotteryType, lotteryNumbers);
+        return lotteryNumbers;
+      } catch (error) {
+        console.error('Error generating and saving numbers:', error);
+        // 返回一个错误状态的对象
+        return {
+          red: [],
+          blue: [],
+          generated: false,
+          purchased: false,
+          date: getTodayString(),
+          error: error.message
+        };
+      }
+    }
+
+    /**
+     * 渲染号码球
+     */
+    function renderNumbers(containerId, numbers, lotteryType) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      if (!numbers.generated) {
+        container.innerHTML = '';
+        return;
+      }
+      
+      let html = '';
+      
+      numbers.red.forEach(num => {
+        html += `<span class="number-ball red-ball">${num.toString().padStart(2, '0')}</span>`;
+      });
+      
+      html += '<span style="margin: 0 8px; font-size: 16px;">+</span>';
+      
+      numbers.blue.forEach(num => {
+        html += `<span class="number-ball blue-ball">${num.toString().padStart(2, '0')}</span>`;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    /**
+     * 渲染状态
+     */
+    function renderStatus(statusId, numbers) {
+      const statusEl = document.getElementById(statusId);
+      if (!statusEl) return;
+      
+      if (numbers.error) {
+        statusEl.innerHTML = '<span style="color: #e74c3c;">⚠ 生成失败 - 请重试</span>';
+        return;
+      }
+      
+      if (!numbers.generated) {
+        statusEl.innerHTML = '';
+        return;
+      }
+      
+      if (numbers.purchased) {
+        statusEl.innerHTML = '<span class="purchased">✓ 已购买 - 等待开奖</span>';
+      } else {
+        statusEl.innerHTML = '<span class="not-purchased">○ 未购买 - 点击购买</span>';
+      }
+    }
+
+    /**
+     * 更新按钮状态
+     */
+    function updateButton(buttonId, numbers) {
+      const button = document.getElementById(buttonId);
+      if (!button) return;
+      
+      if (numbers.generated) {
+        button.textContent = numbers.purchased ? '今日已生成' : '标记为已购买';
+        button.disabled = numbers.purchased;
+      } else {
+        button.textContent = '生成今日幸运号码';
+        button.disabled = false;
+      }
+    }
+
+    /**
+     * 处理按钮点击
+     */
+    async function handleButtonClick(lotteryType) {
+      const isSSQ = lotteryType === 'ssq';
+      const buttonId = isSSQ ? 'ssqBtn' : 'dltBtn';
+      const numbersId = isSSQ ? 'ssqNumbers' : 'dltNumbers';
+      const statusId = isSSQ ? 'ssqStatus' : 'dltStatus';
+      const historyId = isSSQ ? 'ssqIntegratedHistory' : 'dltIntegratedHistory';
+      
+      let numbers = await getStoredNumbers(lotteryType);
+      
+      if (!numbers || !numbers.generated) {
+        numbers = await generateAndSaveNumbers(lotteryType);
+      } else if (!numbers.purchased) {
+        numbers.purchased = true;
+        await saveNumbers(lotteryType, numbers);
+        
+        // 添加到个人历史记录
+        const history = await getPersonalHistory(lotteryType);
+        const newRecord = {
+          date: getTodayString(),
+          red: numbers.red,
+          blue: numbers.blue,
+          prize: null // 开奖后才知道是否中奖
+        };
+        
+        // 将新记录添加到历史记录开头
+        history.unshift(newRecord);
+        
+        // 只保留最近10条记录
+        if (history.length > 10) {
+          history.splice(10);
+        }
+        
+        await savePersonalHistory(lotteryType, history);
+        
+        // 重新渲染整合历史记录
+        await renderIntegratedHistory(historyId, lotteryType);
+      }
+      
+      renderNumbers(numbersId, numbers, lotteryType);
+      renderStatus(statusId, numbers);
+      updateButton(buttonId, numbers);
+    }
+
+    /**
+     * 获取真实历史开奖数据
+     */
+    async function getRecentWinningNumbers(lotteryType) {
+      // 双色球使用真实福彩API数据
+      if (lotteryType === 'ssq') {
+        try {
+          const response = await fetch('https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=5&issueStart=&issueEnd=&dayStart=&dayEnd=&pageNo=1&pageSize=5&week=&systemType=PC', {
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'Accept': '*/*',
+              'Connection': 'keep-alive'
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.state === 0 && data.result && Array.isArray(data.result)) {
+            return data.result.slice(0, 5).map(item => {
+              // 解析开奖号码 "07,09,11,12,16,29" -> red: [7,9,11,12,16,29], blue: [15]
+              const redNumbers = item.red.split(',').map(num => parseInt(num));
+              const blueNumbers = [parseInt(item.blue)];
+              
+              return {
+                period: parseInt(item.code), // 期号
+                date: item.date.split('(')[0], // 开奖日期，去掉星期信息
+                red: redNumbers,
+                blue: blueNumbers
+              };
+            });
+          } else {
+            throw new Error('福彩API返回数据格式错误');
+          }
+        } catch (error) {
+          console.error('获取双色球开奖数据失败:', error);
+          
+          // 降级到模拟数据
+          const ssqData = [
+            { period: 2025096, date: '2025-08-21', red: [7, 9, 11, 12, 16, 29], blue: [15] },
+            { period: 2025095, date: '2025-08-19', red: [15, 16, 22, 23, 26, 32], blue: [4] },
+            { period: 2025094, date: '2025-08-17', red: [11, 13, 17, 19, 23, 29], blue: [16] },
+            { period: 2025093, date: '2025-08-14', red: [9, 11, 12, 24, 25, 26], blue: [10] },
+            { period: 2025092, date: '2025-08-12', red: [2, 11, 14, 17, 23, 24], blue: [12] }
+          ];
+          return ssqData;
+        }
+      }
+      
+      // 大乐透使用真实API数据
+      try {
+        const response = await fetch('https://webapi.sporttery.cn/gateway/lottery/getHistoryPageListV1.qry?gameNo=85&provinceId=0&pageSize=5&isVerify=1&pageNo=1&termLimits=5', {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': '*/*',
+            'Connection': 'keep-alive'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.value && data.value.list) {
+          return data.value.list.map(item => {
+            // 解析开奖号码 "04 09 17 30 33 05 09" -> red: [4,9,17,30,33], blue: [5,9]
+            const numbers = item.lotteryDrawResult.split(' ').map(num => parseInt(num));
+            const red = numbers.slice(0, 5); // 前5个是红球
+            const blue = numbers.slice(5, 7); // 后2个是蓝球
+            
+            return {
+              period: parseInt(item.lotteryDrawNum), // 期号
+              date: item.lotteryDrawTime, // 开奖日期
+              red: red,
+              blue: blue
+            };
+          });
+        } else {
+          throw new Error('API返回数据格式错误');
+        }
+      } catch (error) {
+        console.error('获取大乐透开奖数据失败:', error);
+        
+        // 降级到模拟数据
+        const dltData = [
+          { period: 25094, date: '2025-08-18', red: [4, 9, 17, 30, 33], blue: [5, 9] },
+          { period: 25093, date: '2025-08-15', red: [7, 14, 20, 27, 33], blue: [5, 11] },
+          { period: 25092, date: '2025-08-13', red: [2, 9, 16, 23, 30], blue: [1, 7] },
+          { period: 25091, date: '2025-08-10', red: [4, 11, 17, 24, 32], blue: [6, 9] },
+          { period: 25090, date: '2025-08-08', red: [6, 13, 19, 26, 35], blue: [2, 12] }
+        ];
+        return dltData;
+      }
+    }
+
+    /**
+     * 获取个人中奖记录
+     */
+    async function getPersonalHistory(lotteryType) {
+      try {
+        const allData = await getUnifiedLotteryData();
+        
+        // 查找对应彩种的个人历史记录
+        const historyEntries = allData.filter(item => 
+          item.type === lotteryType && 
+          item.dataType === 'personal_history'
+        );
+        
+        // 按日期倒序排序并提取数据
+        const history = historyEntries
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .map(item => item.data);
+        
+        return history;
+      } catch (error) {
+        console.error('Error getting personal history:', error);
+        return [];
+      }
+    }
+
+    /**
+     * 检测中奖等级
+     */
+    function checkPrize(personalNumbers, winningNumbers, lotteryType) {
+      if (!personalNumbers || !winningNumbers) return null;
+      
+      const redMatches = personalNumbers.red.filter(num => winningNumbers.red.includes(num)).length;
+      const blueMatches = personalNumbers.blue.filter(num => winningNumbers.blue.includes(num)).length;
+      
+      if (lotteryType === 'ssq') {
+        // 双色球中奖规则
+        if (redMatches === 6 && blueMatches === 1) return '一等奖';
+        if (redMatches === 6 && blueMatches === 0) return '二等奖';
+        if (redMatches === 5 && blueMatches === 1) return '三等奖';
+        if (redMatches === 5 && blueMatches === 0) return '四等奖';
+        if (redMatches === 4 && blueMatches === 1) return '四等奖';
+        if (redMatches === 4 && blueMatches === 0) return '五等奖';
+        if (redMatches === 3 && blueMatches === 1) return '五等奖';
+        if (redMatches < 3 && blueMatches === 1) return '六等奖 5元';
+        if (redMatches === 2 && blueMatches === 1) return '六等奖 5元';
+        if (redMatches === 1 && blueMatches === 1) return '六等奖 5元';
+        if (redMatches === 0 && blueMatches === 1) return '六等奖 5元';
+      } else {
+        // 大乐透中奖规则
+        if (redMatches === 5 && blueMatches === 2) return '一等奖';
+        if (redMatches === 5 && blueMatches === 1) return '二等奖';
+        if (redMatches === 5 && blueMatches === 0) return '三等奖';
+        if (redMatches === 4 && blueMatches === 2) return '四等奖';
+        if (redMatches === 4 && blueMatches === 1) return '五等奖';
+        if (redMatches === 3 && blueMatches === 2) return '六等奖';
+        if (redMatches === 4 && blueMatches === 0) return '七等奖';
+        if (redMatches === 3 && blueMatches === 1) return '八等奖';
+        if (redMatches === 2 && blueMatches === 2) return '八等奖';
+        if (redMatches === 3 && blueMatches === 0) return '九等奖 5元';
+        if (redMatches === 1 && blueMatches === 2) return '九等奖 5元';
+        if (redMatches === 2 && blueMatches === 1) return '九等奖 5元';
+        if (redMatches === 0 && blueMatches === 2) return '九等奖 5元';
+      }
+      
+      return null;
+    }
+
+
+
+    /**
+     * 保存个人中奖记录到统一存储
+     */
+    async function savePersonalHistory(lotteryType, history) {
+      try {
+        let allData = await getUnifiedLotteryData();
+        const today = getTodayString();
+        
+        // 清理过期缓存
+        allData = await cleanExpiredCache(lotteryType);
+        
+        // 移除该彩种的旧历史记录数据
+        allData = allData.filter(item => 
+          !(item.type === lotteryType && item.dataType === 'personal_history')
+        );
+        
+        // 为每条历史记录创建单独的存储条目
+        history.forEach(record => {
+          const newEntry = {
+            type: lotteryType,
+            date: record.date,
+            dataType: 'personal_history',
+            data: record,
+            timestamp: Date.now()
+          };
+          allData.push(newEntry);
+        });
+        
+        // 按日期倒序排序
+        allData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        await saveUnifiedLotteryData(allData);
+      } catch (error) {
+        console.error('Error saving personal history:', error);
+      }
+    }
+
+    /**
+     * 格式化日期为MM-DD格式
+     */
+    function formatDateShort(dateStr) {
+      const date = new Date(dateStr);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${month}-${day}`;
+    }
+
+    /**
+     * 渲染整合的历史记录对比
+     */
+    async function renderIntegratedHistory(containerId, lotteryType) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      const winningData = await getRecentWinningNumbers(lotteryType);
+      const personalHistory = await getPersonalHistory(lotteryType);
+      
+      if (winningData.length === 0) {
+        container.innerHTML = '<div class="no-data">暂无开奖数据</div>';
+        return;
+      }
+      
+      let html = '';
+      
+      // 添加待开奖期号
+      const nextPeriod = winningData[0].period + 1;
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      
+      html += '<div class="period-group">';
+      html += `<div class="period-header pending">`;
+      html += `<span>${nextPeriod} 期 <br/> &nbsp;${formatDateShort(todayStr)}</span>`;
+      html += '<span>待开奖</span>';
+      html += '</div>';
+      
+      // 显示今日的个人号码
+      const todayRecords = personalHistory.filter(record => record.date === todayStr);
+      if (todayRecords.length > 0) {
+        todayRecords.forEach(record => {
+          html += '<div class="personal-record';
+          if (record.purchased) html += ' purchased';
+          html += '">';
+          html += `<div class="record-date">${formatDateShort(record.date)}</div>`;
+          html += '<div class="record-numbers">';
+          
+          record.red.forEach(num => {
+            html += `<span class="mini-ball mini-red-ball">${num.toString().padStart(2, '0')}</span>`;
+          });
+          
+          record.blue.forEach(num => {
+            html += `<span class="mini-ball mini-blue-ball">${num.toString().padStart(2, '0')}</span>`;
+          });
+          
+          html += '</div>';
+          html += '<div class="record-status">';
+          if (record.purchased) {
+            html += '<span class="star-icon">★</span>';
+          }
+          html += '</div>';
+          html += '</div>';
+        });
+      } else {
+        html += '<div class="personal-record">';
+        html += `<div class="record-date">${formatDateShort(todayStr)}</div>`;
+        html += '<div class="record-numbers">暂无号码</div>';
+        html += '<div class="record-status"></div>';
+        html += '</div>';
+      }
+      
+      html += '</div>';
+      
+      // 显示历史开奖期号和对应的个人号码
+      winningData.forEach(winning => {
+        html += '<div class="period-group">';
+        html += `<div class="period-header">`;
+        html += `<span>${winning.period} 期<br/> &nbsp;${formatDateShort(winning.date)}</span>`;
+        html += '<div class="period-numbers">';
+        
+        winning.red.forEach(num => {
+          html += `<span class="mini-ball mini-red-ball">${num.toString().padStart(2, '0')}</span>`;
+        });
+        
+        winning.blue.forEach(num => {
+          html += `<span class="mini-ball mini-blue-ball">${num.toString().padStart(2, '0')}</span>`;
+        });
+        
+        html += '</div>';
+        html += '</div>';
+        
+        // 查找该开奖日期前后的个人号码
+        const winningDate = new Date(winning.date);
+        const relevantRecords = personalHistory.filter(record => {
+          const recordDate = new Date(record.date);
+          const daysDiff = Math.abs((winningDate - recordDate) / (1000 * 60 * 60 * 24));
+          return daysDiff <= 3; // 开奖日期前后3天内的记录
+        }).slice(0, 3); // 最多显示3条
+        
+        if (relevantRecords.length > 0) {
+          relevantRecords.forEach(record => {
+            const prize = checkPrize(record, winning, lotteryType);
+            html += '<div class="personal-record';
+            if (record.purchased) html += ' purchased';
+            if (prize) html += ' winner';
+            html += '">';
+            html += `<div class="record-date">${formatDateShort(record.date)}</div>`;
+            html += '<div class="record-numbers">';
+            
+            record.red.forEach(num => {
+              html += `<span class="mini-ball mini-red-ball">${num.toString().padStart(2, '0')}</span>`;
+            });
+            
+            record.blue.forEach(num => {
+              html += `<span class="mini-ball mini-blue-ball">${num.toString().padStart(2, '0')}</span>`;
+            });
+            
+            html += '</div>';
+            html += '<div class="record-status">';
+            if (record.purchased) {
+              html += '<span class="star-icon">★</span>';
+            }
+            if (prize) {
+              html += `<span class="prize-badge">${prize}</span>`;
+            }
+            html += '</div>';
+            html += '</div>';
+          });
+        }
+        
+        html += '</div>';
+      });
+      
+      container.innerHTML = html;
+    }
+
+    /**
+     * 页面切换功能
+     */
+    function initPageSwitcher() {
+      const categoryBtns = document.querySelectorAll('.category-btn');
+      const welfarePage = document.getElementById('welfarePage');
+      const sportsPage = document.getElementById('sportsPage');
+      
+      categoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const category = btn.dataset.category;
+          
+          // 更新按钮状态
+          categoryBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          // 切换页面
+          if (category === 'welfare') {
+            welfarePage.classList.remove('hidden');
+            sportsPage.classList.add('hidden');
+          } else {
+            welfarePage.classList.add('hidden');
+            sportsPage.classList.remove('hidden');
+          }
+        });
+      });
+    }
+
+    /**
+     * 初始化页面
+     */
+    async function initPage() {
+      // 首先初始化lunar库
+      await initLunarLibrary();
+      
+      // 初始化页面切换器
+      initPageSwitcher();
+      
+      const zodiac = getCurrentZodiac();
+      const zodiacIcon = document.getElementById('zodiacIcon');
+      const zodiacName = document.getElementById('zodiacName');
+      
+      if (zodiacIcon) zodiacIcon.textContent = zodiac.icon;
+      if (zodiacName) zodiacName.textContent = zodiac.name;
+      
+      const lunarInfo = getLunarInfo();
+      const lunarDate = document.getElementById('lunarDate');
+      const lunarSuit = document.getElementById('lunarSuit');
+      
+      if (lunarDate) lunarDate.textContent = lunarInfo.date;
+      if (lunarSuit) lunarSuit.textContent = lunarInfo.suit;
+      
+      // 渲染整合的历史记录
+      await renderIntegratedHistory('ssqIntegratedHistory', 'ssq');
+      await renderIntegratedHistory('dltIntegratedHistory', 'dlt');
+      
+      const ssqNumbers = await getStoredNumbers('ssq');
+      const dltNumbers = await getStoredNumbers('dlt');
+      
+      if (ssqNumbers) {
+        renderNumbers('ssqNumbers', ssqNumbers, 'ssq');
+        renderStatus('ssqStatus', ssqNumbers);
+        updateButton('ssqBtn', ssqNumbers);
+      }
+      
+      if (dltNumbers) {
+        renderNumbers('dltNumbers', dltNumbers, 'dlt');
+        renderStatus('dltStatus', dltNumbers);
+        updateButton('dltBtn', dltNumbers);
+      }
+      
+      const ssqBtn = document.getElementById('ssqBtn');
+      const dltBtn = document.getElementById('dltBtn');
+      
+      if (ssqBtn) {
+        ssqBtn.addEventListener('click', () => handleButtonClick('ssq'));
+      }
+      
+      if (dltBtn) {
+        dltBtn.addEventListener('click', () => handleButtonClick('dlt'));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

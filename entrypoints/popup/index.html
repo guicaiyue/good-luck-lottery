@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生肖彩票助手</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部信息 -->
+    <div class="header">
+      <div class="zodiac-info">
+        <span class="zodiac-icon" id="zodiacIcon">🐉</span>
+        <span class="zodiac-name" id="zodiacName">龙</span>
+        <span>年运势</span>
+      </div>
+    </div>
+
+    <!-- 运势信息 -->
+    <div class="fortune-info">
+      <div class="fortune-row">
+        <span>农历:</span>
+        <span id="lunarDate">腊月初八</span>
+      </div>
+      <div class="fortune-row">
+        <span>今日:</span>
+        <span id="lunarSuit">宜: 祈福、出行 忌: 动土</span>
+      </div>
+    </div>
+
+    <!-- 彩票分类选择器 -->
+    <div class="category-selector">
+      <button class="category-btn active" data-category="welfare">🎈 福彩</button>
+      <button class="category-btn" data-category="sports">⚽ 体彩</button>
+    </div>
+
+    <!-- 福彩页面 -->
+    <div class="lottery-page" id="welfarePage">
+      <!-- 双色球 -->
+      <div class="lottery-section">
+        <div class="lottery-title">
+          🔴 双色球
+        </div>
+        <div class="lottery-numbers" id="ssqNumbers">
+          <!-- 号码球将通过JS动态生成 -->
+        </div>
+        <div class="lottery-status" id="ssqStatus">
+          <!-- 状态信息 -->
+        </div>
+        <button class="generate-btn" id="ssqBtn">生成今日幸运号码</button>
+        
+        <!-- 历史记录对比 -->
+        <div class="history-comparison">
+          <div class="section-title">📊 历史中奖记录</div>
+          <div class="integrated-history" id="ssqIntegratedHistory"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 体彩页面 -->
+    <div class="lottery-page hidden" id="sportsPage">
+      <!-- 大乐透 -->
+      <div class="lottery-section">
+        <div class="lottery-title">
+          🎯 大乐透
+        </div>
+        <div class="lottery-numbers" id="dltNumbers">
+          <!-- 号码球将通过JS动态生成 -->
+        </div>
+        <div class="lottery-status" id="dltStatus">
+          <!-- 状态信息 -->
+        </div>
+        <button class="generate-btn" id="dltBtn">生成今日幸运号码</button>
+        
+        <!-- 历史中奖记录 -->
+        <div class="history-comparison">
+          <div class="section-title">📊 历史中奖记录</div>
+          <div class="integrated-history" id="dltIntegratedHistory"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部信息 -->
+    <div class="footer">
+      🍀 愿您好运连连，中奖多多！
+    </div>
+  </div>
+
+  <!-- 引入主脚本文件 -->
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
