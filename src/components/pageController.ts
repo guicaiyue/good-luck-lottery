@@ -95,33 +95,45 @@ export async function handleButtonClick(lotteryType: LotteryType): Promise<void>
   
   try {
     let numbers = await getStoredNumbers(lotteryType);
+    const button = document.getElementById(buttonId) as HTMLButtonElement;
+    const buttonText = button?.textContent || '';
     
     if (!numbers) {
       // 生成新号码
       numbers = generateLotteryNumbers(lotteryType);
       await saveNumbers(lotteryType, numbers);
-    } else if (numbers.purchased) {
-      // 复制号码到剪贴板
+    } else if (buttonText === '复制号码') {
+      // 复制号码到剪贴板，不改变任何状态
       await copyLotteryNumbers(numbers);
       return; // 复制后直接返回，不需要重新渲染
-    } else {
+    } else if (buttonText === '标记购买') {
       // 标记为已购买并保存到历史记录
       numbers.purchased = true;
       await saveNumbers(lotteryType, numbers);
       
-      // 添加到个人历史记录
+      // 获取现有历史记录
       const history = await getPersonalHistory(lotteryType);
-      history.unshift(numbers);
       
-      // 只保留最近10条记录
-      if (history.length > 10) {
-        history.splice(10);
+      // 检查是否已存在相同日期的记录，避免重复添加
+      const existingIndex = history.findIndex(record => record.date === numbers.date);
+      if (existingIndex === -1) {
+        // 只有当不存在相同日期的记录时才添加
+        history.unshift(numbers);
+        
+        // 只保留最近10条记录
+        if (history.length > 10) {
+          history.splice(10);
+        }
+        
+        await savePersonalHistory(lotteryType, history);
       }
-      
-      await savePersonalHistory(lotteryType, history);
       
       // 重新渲染整合历史记录
       await renderIntegratedHistory(historyId, lotteryType);
+    } else {
+      // 重新生成号码（当按钮文本为"生成号码"时）
+      numbers = generateLotteryNumbers(lotteryType);
+      await saveNumbers(lotteryType, numbers);
     }
     
     renderNumbers(numbersId, numbers, lotteryType);
