@@ -909,12 +909,57 @@
       const button = document.getElementById(buttonId);
       if (!button) return;
       
-      if (numbers.generated) {
-        button.textContent = numbers.purchased ? '今日已生成' : '标记为已购买';
-        button.disabled = numbers.purchased;
-      } else {
-        button.textContent = '生成今日幸运号码';
+      if (numbers) {
+        button.textContent = numbers.purchased ? '复制号码' : '标记购买';
         button.disabled = false;
+      } else {
+        button.textContent = '生成号码';
+        button.disabled = false;
+      }
+    }
+
+    /**
+     * 复制彩票号码到剪贴板
+     */
+    async function copyLotteryNumbers(numbers) {
+      try {
+        // 格式化号码，红球和蓝球之间用空格分隔
+        const redNumbers = numbers.red.map(num => num.toString().padStart(2, '0')).join(' ');
+        const blueNumbers = numbers.blue.map(num => num.toString().padStart(2, '0')).join(' ');
+        const formattedNumbers = `${redNumbers} | ${blueNumbers}`;
+        
+        await navigator.clipboard.writeText(formattedNumbers);
+        
+        // 显示复制成功提示
+        const notification = document.createElement('div');
+        notification.textContent = '号码已复制到剪贴板！';
+        notification.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 5px;
+          z-index: 10000;
+          font-size: 14px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // 2秒后移除提示
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 2000);
+        
+      } catch (error) {
+        console.error('复制失败:', error);
+        // 降级方案：显示号码让用户手动复制
+        const redNumbers = numbers.red.map(num => num.toString().padStart(2, '0')).join(' ');
+        const blueNumbers = numbers.blue.map(num => num.toString().padStart(2, '0')).join(' ');
+        alert(`复制失败，请手动复制：${redNumbers} | ${blueNumbers}`);
       }
     }
 
@@ -928,40 +973,53 @@
       const statusId = isSSQ ? 'ssqStatus' : 'dltStatus';
       const historyId = isSSQ ? 'ssqIntegratedHistory' : 'dltIntegratedHistory';
       
-      let numbers = await getStoredNumbers(lotteryType);
-      
-      if (!numbers || !numbers.generated) {
-        numbers = await generateAndSaveNumbers(lotteryType);
-      } else if (!numbers.purchased) {
-        numbers.purchased = true;
-        await saveNumbers(lotteryType, numbers);
+      try {
+        let numbers = await getStoredNumbers(lotteryType);
+        const button = document.getElementById(buttonId);
+        const buttonText = button?.textContent || '';
         
-        // 添加到个人历史记录
-        const history = await getPersonalHistory(lotteryType);
-        const newRecord = {
-          date: getTodayString(),
-          red: numbers.red,
-          blue: numbers.blue,
-          prize: null // 开奖后才知道是否中奖
-        };
-        
-        // 将新记录添加到历史记录开头
-        history.unshift(newRecord);
-        
-        // 只保留最近10条记录
-        if (history.length > 10) {
-          history.splice(10);
+        if (!numbers) {
+          // 生成新号码
+          numbers = await generateAndSaveNumbers(lotteryType);
+        } else if (buttonText === '复制号码') {
+          // 复制号码到剪贴板，不改变任何状态
+          await copyLotteryNumbers(numbers);
+          return; // 复制后直接返回，不需要重新渲染
+        } else if (buttonText === '标记购买') {
+          // 标记为已购买并保存到历史记录
+          numbers.purchased = true;
+          await saveNumbers(lotteryType, numbers);
+          
+          // 获取现有历史记录
+          const history = await getPersonalHistory(lotteryType);
+          
+          // 检查是否已存在相同日期的记录，避免重复添加
+          const existingIndex = history.findIndex(record => record.date === numbers.date);
+          if (existingIndex === -1) {
+            // 只有当不存在相同日期的记录时才添加
+            history.unshift(numbers);
+            
+            // 只保留最近10条记录
+            if (history.length > 10) {
+              history.splice(10);
+            }
+            
+            await savePersonalHistory(lotteryType, history);
+          }
+          
+          // 重新渲染整合历史记录
+          await renderIntegratedHistory(historyId, lotteryType);
+        } else {
+          // 重新生成号码（当按钮文本为"生成号码"时）
+          numbers = await generateAndSaveNumbers(lotteryType);
         }
         
-        await savePersonalHistory(lotteryType, history);
-        
-        // 重新渲染整合历史记录
-        await renderIntegratedHistory(historyId, lotteryType);
+        renderNumbers(numbersId, numbers, lotteryType);
+        renderStatus(statusId, numbers);
+        updateButton(buttonId, numbers);
+      } catch (error) {
+        console.error(`Error handling ${lotteryType} button click:`, error);
       }
-      
-      renderNumbers(numbersId, numbers, lotteryType);
-      renderStatus(statusId, numbers);
-      updateButton(buttonId, numbers);
     }
 
     /**
