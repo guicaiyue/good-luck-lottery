@@ -7,6 +7,7 @@ import { generateLotteryNumbers } from '../services/lotteryGenerator';
 import { getStoredNumbers, saveNumbers, getPersonalHistory, savePersonalHistory, getUnifiedLotteryData } from '../services/lotteryStorage';
 import { renderNumbers, renderStatus, updateButton, renderIntegratedHistory } from './domRenderer';
 import { getCurrentZodiac, getLunarInfo, initLunarLibrary } from '../services/zodiacService';
+import { getTodayString } from '../utils/dateUtils';
 
 /**
  * 复制彩票号码到剪贴板
@@ -94,51 +95,24 @@ export async function handleButtonClick(lotteryType: LotteryType): Promise<void>
   const historyId = `${lotteryType}IntegratedHistory`;
   
   try {
-    let numbers = await getStoredNumbers(lotteryType);
-    const button = document.getElementById(buttonId) as HTMLButtonElement;
-    const buttonText = button?.textContent || '';
+    // 基于数据状态决策：若今日已有号码（含已购买），则复制；否则生成
+    let numbers = await getTodayNumbersIncludingPurchased(lotteryType);
     
-    if (!numbers) {
-      // 生成新号码
-      numbers = generateLotteryNumbers(lotteryType);
-      await saveNumbers(lotteryType, numbers);
-    } else if (buttonText === '复制号码') {
-      // 复制号码到剪贴板，不改变任何状态
+    if (numbers) {
       await copyLotteryNumbers(numbers);
-      return; // 复制后直接返回，不需要重新渲染
-    } else if (buttonText === '标记购买') {
-      // 标记为已购买并保存到历史记录
-      numbers.purchased = true;
-      await saveNumbers(lotteryType, numbers);
-      
-      // 获取现有历史记录
-      const history = await getPersonalHistory(lotteryType);
-      
-      // 检查是否已存在相同日期的记录，避免重复添加
-      const existingIndex = history.findIndex(record => record.date === numbers.date);
-      if (existingIndex === -1) {
-        // 只有当不存在相同日期的记录时才添加
-        history.unshift(numbers);
-        
-        // 只保留最近10条记录
-        if (history.length > 10) {
-          history.splice(10);
-        }
-        
-        await savePersonalHistory(lotteryType, history);
-      }
-      
-      // 重新渲染整合历史记录
-      await renderIntegratedHistory(historyId, lotteryType);
-    } else {
-      // 重新生成号码（当按钮文本为"生成号码"时）
-      numbers = generateLotteryNumbers(lotteryType);
-      await saveNumbers(lotteryType, numbers);
+      return;
     }
+    
+    // 今日尚无号码：生成并保存
+    numbers = generateLotteryNumbers(lotteryType);
+    await saveNumbers(lotteryType, numbers);
     
     renderNumbers(numbersId, numbers, lotteryType);
     renderStatus(statusId, numbers);
     updateButton(buttonId, numbers);
+    
+    // 渲染历史（以便列表显示今日“未购买”记录）
+    await renderIntegratedHistory(historyId, lotteryType);
   } catch (error) {
     console.error(`Error handling ${lotteryType} button click:`, error);
   }
@@ -200,20 +174,20 @@ export async function initLotteryDisplay(): Promise<void> {
     await renderIntegratedHistory('ssqIntegratedHistory', 'ssq');
     await renderIntegratedHistory('dltIntegratedHistory', 'dlt');
     
-    // 获取并显示存储的号码
-    const ssqNumbers = await getStoredNumbers('ssq');
-    const dltNumbers = await getStoredNumbers('dlt');
+    // 获取并显示存储的号码（包含已购买的今日号码）
+    const ssqToday = await getTodayNumbersIncludingPurchased('ssq');
+    const dltToday = await getTodayNumbersIncludingPurchased('dlt');
     
-    if (ssqNumbers) {
-      renderNumbers('ssqNumbers', ssqNumbers, 'ssq');
-      renderStatus('ssqStatus', ssqNumbers);
-      updateButton('ssqBtn', ssqNumbers);
+    if (ssqToday) {
+      renderNumbers('ssqNumbers', ssqToday, 'ssq');
+      renderStatus('ssqStatus', ssqToday);
+      updateButton('ssqBtn', ssqToday);
     }
     
-    if (dltNumbers) {
-      renderNumbers('dltNumbers', dltNumbers, 'dlt');
-      renderStatus('dltStatus', dltNumbers);
-      updateButton('dltBtn', dltNumbers);
+    if (dltToday) {
+      renderNumbers('dltNumbers', dltToday, 'dlt');
+      renderStatus('dltStatus', dltToday);
+      updateButton('dltBtn', dltToday);
     }
   } catch (error) {
     console.error('Error initializing lottery display:', error);
@@ -263,4 +237,21 @@ export async function initPage(): Promise<void> {
   } catch (error) {
     console.error('Error initializing page:', error);
   }
+}
+
+/**
+ * 获取今日号码（包含已购买的情况）
+ *
+ * 优先返回当日未购买的“当前号码”；若没有，则回退到个人历史中“今日且已购买”的记录。
+ */
+async function getTodayNumbersIncludingPurchased(lotteryType: LotteryType): Promise<LotteryNumbers | null> {
+  // 先查未购买（当前缓存）
+  const current = await getStoredNumbers(lotteryType);
+  if (current) return current;
+  
+  // 回退到历史里查找今天的记录（通常为已购买）
+  const today = getTodayString();
+  const history = await getPersonalHistory(lotteryType);
+  const purchasedToday = history.find(h => h.date === today) || null;
+  return purchasedToday || null;
 }

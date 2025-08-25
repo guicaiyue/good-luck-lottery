@@ -45,13 +45,17 @@ export function renderStatus(containerId: string, numbers: LotteryNumbers): void
 
 /**
  * 更新按钮状态
+ *
+ * 变更点：
+ * - 当当日号码已生成（无论是否已购买），按钮统一显示为“复制号码”，避免用户重复生成。
+ * - 当尚未生成当日号码时，按钮显示为“生成号码”。
  */
 export function updateButton(buttonId: string, numbers: LotteryNumbers | null): void {
   const button = document.getElementById(buttonId) as HTMLButtonElement;
   if (!button) return;
   
   if (numbers) {
-    button.textContent = numbers.purchased ? '复制号码' : '标记购买';
+    button.textContent = '复制号码';
     button.disabled = false;
   } else {
     button.textContent = '生成号码';
@@ -126,6 +130,9 @@ function renderPendingPeriod(latestWinning: WinningNumbers, personalHistory: Lot
 
 /**
  * 渲染历史期号
+ *
+ * 修复点：仅展示“开奖日期当天或之前”生成的个人号码，且与开奖日期相差不超过7天，
+ * 避免将未来日期（例如 08-25）的记录误归类到上一期（例如 08-24）。
  */
 function renderHistoryPeriod(
   winning: WinningNumbers,
@@ -148,15 +155,15 @@ function renderHistoryPeriod(
   html += '</div>';
   html += '</div>';
   
-  // 查找该开奖日期当天或之前生成的个人号码
-  const winningDate = new Date(winning.date);
-  const relevantRecords = personalHistory.filter(record => {
-    const recordDate = new Date(record.date);
-    // 只显示开奖日期当天或之前的记录，且时间差不超过7天
-    const timeDiff = winningDate.getTime() - recordDate.getTime();
-    const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-    return daysDiff >= 0 && daysDiff <= 7; // 开奖日期前7天内的记录
-  }).slice(0, 3); // 最多显示3条
+  // 查找该开奖日期当天或之前生成的个人号码（且在7天窗口内）
+  const relevantRecords = personalHistory
+    .filter(record => {
+      // 使用字符串比较确保 record.date 不晚于 winning.date（YYYY-MM-DD 具备可比性）
+      const notAfterWinning = record.date <= winning.date;
+      const withinWindow = getDaysDifference(record.date, winning.date) <= 7;
+      return notAfterWinning && withinWindow;
+    })
+    .slice(0, 3); // 最多显示3条
   
   if (relevantRecords.length > 0) {
     relevantRecords.forEach(record => {
@@ -176,7 +183,7 @@ function renderPersonalRecord(record: LotteryNumbers, prize?: string | null): st
   let html = '<div class="personal-record';
   if (record.purchased) html += ' purchased';
   if (prize) html += ' winner';
-  html += '">';
+  html += '\">';
   html += `<div class="record-date">${formatDateShort(record.date)}</div>`;
   html += '<div class="record-numbers">';
   
